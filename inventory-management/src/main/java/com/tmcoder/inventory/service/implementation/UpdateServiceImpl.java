@@ -33,9 +33,9 @@ public class UpdateServiceImpl implements UpdateService {
 		String mrpToString = Double.toString(inventory.getMrp());
 		String quantityToString = Integer.toString(inventory.getQuantity());
 
-		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().length() == 0)
+		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().isEmpty())
 			throw new InventoryException("Enter a valid product name");
-		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().length() == 0)
+		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().isEmpty())
 			throw new InventoryException("Enter a valid vendor");
 		if (!mrpToString.matches(mrpPattern))
 			throw new InventoryException("Enter a valid price");

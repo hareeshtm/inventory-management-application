@@ -54,7 +54,7 @@ public class DeleteServiceImpl implements DeleteService {
 		} catch (Exception e) {
 			throw new InventoryException("Not able to send request to delete the particular Inventory");
 		}
-		return "Request for deleting inventory issuccessfully send to Store Manager";
+		return "Request for deleting inventory is successfully send to Store Manager";
 	}
 
 	@Override

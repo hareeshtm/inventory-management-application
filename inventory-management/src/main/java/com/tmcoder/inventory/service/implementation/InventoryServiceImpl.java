@@ -2,6 +2,7 @@ package com.tmcoder.inventory.service.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -37,29 +38,7 @@ public class InventoryServiceImpl implements InventoryService {
 	@Override
 	public String addInventory(InventoryDto inventory) {
 
-		String productNamePattern = "^[\\p{L} .'-]+$";
-		String vendorPattern = "^[\\p{L} .'-]+$";
-		String mrpPattern = "^[1-9]\\d{0,7}(?:\\.\\d{1,4})?$";
-		String batchNumberPattern = "^[1-9]+$";
-		String quantityPattern = "^[1-9]+$";
-		String mrpToString = Double.toString(inventory.getMrp());
-		String quantityToString = Integer.toString(inventory.getQuantity());
-
-		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().length() == 0)
-			throw new InventoryException("Enter a valid product name");
-		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().length() == 0)
-			throw new InventoryException("Enter a valid vendor");
-		if (!mrpToString.matches(mrpPattern))
-			throw new InventoryException("Enter a valid price");
-		if (!inventory.getBatchNum().matches(batchNumberPattern))
-			throw new InventoryException("Enter a valid Batch Number");
-		if (inventory.getBatchDate() == "")
-			throw new InventoryException("Enter a valid batch date");
-		if (!quantityToString.matches(quantityPattern))
-			throw new InventoryException("Enter a valid quantity");
-		if (inventory.getQuantity() == 0)
-			throw new InventoryException("Enter a valid Quantity");
-
+		validateInventory(inventory);
 		try {
 			Inventory inventoryData = modelMapper.map(inventory, Inventory.class);
 			inventoryRepo.save(inventoryData);
@@ -73,6 +52,31 @@ public class InventoryServiceImpl implements InventoryService {
 
 	}
 
+	private void validateInventory(InventoryDto inventory) {
+		String productNamePattern = "^[\\p{L} .'-]+$";
+		String vendorPattern = "^[\\p{L} .'-]+$";
+		String mrpPattern = "^[1-9]\\d{0,7}(?:\\.\\d{1,4})?$";
+		String batchNumberPattern = "^[1-9]+$";
+		String quantityPattern = "^[1-9]+$";
+		String mrpToString = Double.toString(inventory.getMrp());
+		String quantityToString = Integer.toString(inventory.getQuantity());
+
+		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().isEmpty())
+			throw new InventoryException("Enter a valid product name");
+		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().isEmpty())
+			throw new InventoryException("Enter a valid vendor");
+		if (!mrpToString.matches(mrpPattern))
+			throw new InventoryException("Enter a valid price");
+		if (!inventory.getBatchNum().matches(batchNumberPattern))
+			throw new InventoryException("Enter a valid Batch Number");
+		if (Objects.equals(inventory.getBatchDate(), ""))
+			throw new InventoryException("Enter a valid batch date");
+		if (!quantityToString.matches(quantityPattern))
+			throw new InventoryException("Enter a valid quantity");
+		if (inventory.getQuantity() == 0)
+			throw new InventoryException("Enter a valid Quantity");
+	}
+
 	@Override
 	public String addPendingInventory(Inventory inventory) {
 
@@ -84,9 +88,9 @@ public class InventoryServiceImpl implements InventoryService {
 		String mrpToString = Double.toString(inventory.getMrp());
 		String quantityToString = Integer.toString(inventory.getQuantity());
 
-		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().length() == 0)
+		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().isEmpty())
 			throw new InventoryException("Enter a valid product name");
-		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().length() == 0)
+		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().isEmpty())
 			throw new InventoryException("Enter a valid vendor");
 		if (!mrpToString.matches(mrpPattern))
 			throw new InventoryException("Enter a valid price");
@@ -130,7 +134,7 @@ public class InventoryServiceImpl implements InventoryService {
 		}
 
 		try {
-			inventory = inventoryRepo.getOne(productId);
+			inventory = inventoryRepo.getById(productId);
 			inventoryRepo.delete(inventory);
 			return "Inventory deleted successfully";
 		} catch (Exception e) {
@@ -148,9 +152,9 @@ public class InventoryServiceImpl implements InventoryService {
 		String mrpToString = Double.toString(inventory.getMrp());
 		String quantityToString = Integer.toString(inventory.getQuantity());
 
-		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().length() == 0)
+		if ((!inventory.getProductName().matches(productNamePattern)) || inventory.getProductName().isEmpty())
 			throw new InventoryException("Enter a valid product name");
-		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().length() == 0)
+		if ((!inventory.getVendor().matches(vendorPattern)) || inventory.getVendor().isEmpty())
 			throw new InventoryException("Enter a valid vendor");
 		if (!mrpToString.matches(mrpPattern))
 			throw new InventoryException("Enter a valid price");
@@ -168,7 +172,7 @@ public class InventoryServiceImpl implements InventoryService {
 
 		Inventory inventoryDetails = new Inventory();
 		try {
-			inventoryDetails = inventoryRepo.getOne(productId);
+			inventoryDetails = inventoryRepo.getById(productId);
 		} catch (Exception e) {
 			throw new InventoryException("No such inventory is present");
 		}
@@ -232,7 +236,7 @@ public class InventoryServiceImpl implements InventoryService {
 	public String approvePendingInventory(int productId) {
 
 		Inventory inventory = new Inventory();
-		inventory = inventoryRepo.getOne(productId);
+		inventory = inventoryRepo.getById(productId);
 		if (inventory.getStatus().equals("Approved"))
 			throw new InventoryException("Already Approved Item");
 		try {
